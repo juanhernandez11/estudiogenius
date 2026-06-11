@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { preview } from 'vite';
 
 const SETTINGS_KEY = 'study_genius_settings';
 
