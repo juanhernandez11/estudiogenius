@@ -2,6 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { QuizQuestion } from "../types";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const model = import.meta.env.VITE_GEMINI_MODEL || 'gemini-1.5';
 
 if (!apiKey) {
   console.error('❌ VITE_GEMINI_API_KEY no está detectada por Vite.');
@@ -9,6 +10,7 @@ if (!apiKey) {
   // Log de diagnóstico seguro para producción
   const isFormatValid = apiKey.startsWith('AIza');
   console.log(`[Gemini Auth] Key detectada: ${isFormatValid ? '✅ Formato correcto (AIza...)' : '❌ Formato sospechoso'}. Longitud: ${apiKey.length}`);
+  console.log(`[Gemini Model] Modelo configurado: ${model}`);
 }
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
@@ -18,7 +20,7 @@ export const summarizeNote = async (content: string): Promise<string> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model,
       contents: `Resume el siguiente apunte de estudio en español. Hazlo conciso, utilizando viñetas si es necesario, ideal para repasar rápidamente antes de un examen: \n\n${content}`,
     });
     return response.text || "No se pudo generar el resumen.";
@@ -33,7 +35,7 @@ export const generateQuiz = async (content: string): Promise<QuizQuestion[]> => 
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model,
       contents: `Basado en el siguiente texto de estudio, genera 3 preguntas de opción múltiple desafiantes para poner a prueba el conocimiento del estudiante.
       
       Texto: "${content.substring(0, 3000)}"
@@ -78,7 +80,7 @@ export const explainConcept = async (concept: string, context: string): Promise<
     
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-1.5-flash',
+            model,
             contents: `Explica el concepto "${concept}" de forma sencilla para un estudiante, basándote en el contexto de este apunte: "${context.substring(0, 1000)}..."`
         });
         return response.text || "No se pudo generar la explicación.";
