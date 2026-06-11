@@ -4,7 +4,11 @@ import { QuizQuestion } from "../types";
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 if (!apiKey) {
-  console.error('❌ VITE_GEMINI_API_KEY no está configurada. Las funciones de IA no estarán disponibles.');
+  console.error('❌ VITE_GEMINI_API_KEY no está detectada por Vite.');
+} else {
+  // Log de diagnóstico seguro para producción
+  const isFormatValid = apiKey.startsWith('AIza');
+  console.log(`[Gemini Auth] Key detectada: ${isFormatValid ? '✅ Formato correcto (AIza...)' : '❌ Formato sospechoso'}. Longitud: ${apiKey.length}`);
 }
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
