@@ -18,7 +18,7 @@ export const summarizeNote = async (content: string): Promise<string> => {
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-1.5-flash',
       contents: `Resume el siguiente apunte de estudio en español. Hazlo conciso, utilizando viñetas si es necesario, ideal para repasar rápidamente antes de un examen: \n\n${content}`,
     });
     return response.text || "No se pudo generar el resumen.";
@@ -33,7 +33,7 @@ export const generateQuiz = async (content: string): Promise<QuizQuestion[]> => 
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-1.5-flash',
       contents: `Basado en el siguiente texto de estudio, genera 3 preguntas de opción múltiple desafiantes para poner a prueba el conocimiento del estudiante.
       
       Texto: "${content.substring(0, 3000)}"
@@ -78,7 +78,7 @@ export const explainConcept = async (concept: string, context: string): Promise<
     
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-3-flash-preview',
+            model: 'gemini-1.5-flash',
             contents: `Explica el concepto "${concept}" de forma sencilla para un estudiante, basándote en el contexto de este apunte: "${context.substring(0, 1000)}..."`
         });
         return response.text || "No se pudo generar la explicación.";
