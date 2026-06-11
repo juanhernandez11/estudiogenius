@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { QuizQuestion } from "../types";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-const model = import.meta.env.VITE_GEMINI_MODEL || 'gemini-1.5';
+const model = import.meta.env.VITE_GEMINI_MODEL || 'gemini-3.5-flash';
 
 if (!apiKey) {
   console.error('❌ VITE_GEMINI_API_KEY no está detectada por Vite.');
