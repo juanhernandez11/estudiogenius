@@ -6,12 +6,14 @@ const model = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.0-flash';
 
 if (!apiKey) {
   console.error('❌ VITE_GEMINI_API_KEY no está detectada por Vite.');
-} else {
-  // Log de diagnóstico seguro para producción
-  const isFormatValid = apiKey.startsWith('AIza');
-  console.log(`[Gemini Auth] Key detectada: ${isFormatValid ? '✅ Formato correcto (AIza...)' : '❌ Formato sospechoso'}. Longitud: ${apiKey.length}`);
-  console.log(`[Gemini Model] Modelo configurado: ${model}`);
 }
+
+const handleQuotaError = (error: any): never => {
+  if (error?.status === 429 || JSON.stringify(error).includes('429') || JSON.stringify(error).includes('quota')) {
+    throw new Error('⏳ Límite de uso alcanzado. Espera unos minutos e intenta de nuevo, o crea una nueva API key en aistudio.google.com');
+  }
+  throw error;
+};
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
@@ -26,7 +28,7 @@ export const summarizeNote = async (content: string): Promise<string> => {
     return response.text || "No se pudo generar el resumen.";
   } catch (error) {
     console.error("Error summarizing note:", error);
-    throw new Error("Error al conectar con Gemini para resumir.");
+    handleQuotaError(error);
   }
 };
 
@@ -71,7 +73,7 @@ export const generateQuiz = async (content: string): Promise<QuizQuestion[]> => 
     return JSON.parse(jsonText) as QuizQuestion[];
   } catch (error) {
     console.error("Error generating quiz:", error);
-    throw new Error("Error al generar el quiz con Gemini.");
+    handleQuotaError(error);
   }
 };
 
@@ -86,6 +88,6 @@ export const explainConcept = async (concept: string, context: string): Promise<
         return response.text || "No se pudo generar la explicación.";
     } catch (error) {
         console.error("Error explaining concept", error);
-        throw error;
+        handleQuotaError(error);
     }
 };
