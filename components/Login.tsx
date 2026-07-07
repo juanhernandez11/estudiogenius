@@ -61,7 +61,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </div>
 
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-6">
-          Al continuar, aceptas nuestros términos y condiciones
+          Al continuar, aceptas nuestros <a href="./terms.html" className="hover:underline"><b>términos y condiciones</b></a> y nuestra <a href="./privacy.html" className="hover:underline"><b>política de privacidad</b></a>
         </p>
       </div>
     </div>

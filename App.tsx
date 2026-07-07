@@ -7,13 +7,14 @@ import { NavBar } from './components/NavBar';
 import { Settings } from './components/Settings';
 import { NotificationToast } from './components/Notification';
 import { Login } from './components/Login';
+import { Onboarding } from './components/Onboarding';
 import { v4 as uuidv4 } from 'uuid';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
-import { preview } from 'vite';
 
 const SETTINGS_KEY = 'study_genius_settings';
+const ONBOARDING_KEY = 'study_genius_onboarding_done';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -28,6 +29,12 @@ function App() {
   
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [notification, setNotification] = useState<NotificationType | null>(null);
+  const [onboardingDone, setOnboardingDone] = useState(() => !!localStorage.getItem(ONBOARDING_KEY));
+
+  const handleOnboardingFinish = () => {
+    localStorage.setItem(ONBOARDING_KEY, 'true');
+    setOnboardingDone(true);
+  };
 
   const showNotification = useCallback((message: string, type: 'success' | 'error' | 'info') => {
     setNotification({ id: uuidv4(), message, type });
@@ -340,6 +347,10 @@ function App() {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     );
+  }
+
+  if (!onboardingDone) {
+    return <Onboarding onFinish={handleOnboardingFinish} />;
   }
 
   if (!user) {

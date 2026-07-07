@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Política de Privacidad — EstudioGenius</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+  <!-- NAV -->
+  <nav class="sticky top-0 z-50 bg-white border-b border-slate-100 px-6 py-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2">
+        <img src="/img/Gemini_Generated_Image_s5ygros5ygros5yg.png" alt="Logo" class="w-8 h-8 rounded-lg object-cover" />
+        <span class="font-bold text-slate-900">EstudioGenius</span>
+      </a>
+      <a href="/terms.html" class="text-sm text-indigo-600 font-medium hover:underline">Términos y Condiciones</a>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-6 py-12">
+
+    <div class="mb-10">
+      <span class="text-xs font-bold uppercase tracking-widest text-indigo-600">Legal</span>
+      <h1 class="text-4xl font-black text-slate-900 mt-2 mb-3">Política de Privacidad</h1>
+      <p class="text-slate-500 text-sm">Última actualización: 1 de enero de 2026 · Versión 1.0</p>
+    </div>
+
+    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 mb-10 text-sm text-emerald-800">
+      <strong>Resumen simple:</strong> Solo recopilamos lo necesario para que la app funcione. No vendemos tus datos. No los compartimos con terceros salvo los servicios técnicos que hacen funcionar la app (Firebase, Groq). Puedes eliminar todo cuando quieras.
+    </div>
+
+    <!-- Tabla resumen -->
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-10 shadow-sm">
+      <div class="bg-slate-50 px-5 py-3 border-b border-slate-200">
+        <h2 class="font-bold text-slate-700 text-sm uppercase tracking-wide">Resumen de datos recopilados</h2>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <div class="grid grid-cols-3 px-5 py-3 text-sm">
+          <span class="font-semibold text-slate-700">Dato</span>
+          <span class="font-semibold text-slate-700">Para qué se usa</span>
+          <span class="font-semibold text-slate-700">Se comparte</span>
+        </div>
+        <div class="grid grid-cols-3 px-5 py-3 text-sm text-slate-600">
+          <span>Nombre y foto de Google</span>
+          <span>Identificar tu cuenta</span>
+          <span class="text-emerald-600 font-medium">No</span>
+        </div>
+        <div class="grid grid-cols-3 px-5 py-3 text-sm text-slate-600">
+          <span>Correo electrónico</span>
+          <span>Autenticación</span>
+          <span class="text-emerald-600 font-medium">No</span>
+        </div>
+        <div class="grid grid-cols-3 px-5 py-3 text-sm text-slate-600">
+          <span>Apuntes y notas</span>
+          <span>Funciones de la app</span>
+          <span class="text-amber-600 font-medium">Solo IA*</span>
+        </div>
+        <div class="grid grid-cols-3 px-5 py-3 text-sm text-slate-600">
+          <span>Preferencias (modo oscuro)</span>
+          <span>Personalización</span>
+          <span class="text-emerald-600 font-medium">No</span>
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 text-xs text-slate-500 border-t border-slate-200">
+        * El contenido de tus notas se envía a Groq API únicamente cuando usas funciones de IA (resumir, quiz, explicar). No se almacena en sus servidores de forma permanente.
+      </div>
+    </div>
+
+    <div class="space-y-10 text-slate-700 leading-relaxed">
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">1. Responsable del Tratamiento</h2>
+        <p>EstudioGenius, desarrollado por JuanBv, con domicilio en el estado de Puebla, México, es el responsable del tratamiento de tus datos personales conforme a la <strong>Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</strong> y su Reglamento.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">2. Datos que Recopilamos</h2>
+
+        <h3 class="font-bold text-slate-800 mt-4 mb-2">2.1 Datos de autenticación</h3>
+        <p>Al iniciar sesión con Google recopilamos: nombre, dirección de correo electrónico y foto de perfil. Estos datos son proporcionados por Google y se usan exclusivamente para identificar tu cuenta.</p>
+
+        <h3 class="font-bold text-slate-800 mt-4 mb-2">2.2 Contenido generado por el usuario</h3>
+        <p>Los apuntes, notas y materias que creas se almacenan en Firebase Firestore, asociados a tu cuenta. Este contenido es de tu propiedad.</p>
+
+        <h3 class="font-bold text-slate-800 mt-4 mb-2">2.3 Datos de uso</h3>
+        <p>Almacenamos metadatos básicos como fechas de creación y modificación de notas, y contadores de repaso. No recopilamos datos de comportamiento ni analíticas de navegación.</p>
+
+        <h3 class="font-bold text-slate-800 mt-4 mb-2">2.4 Datos enviados a la IA</h3>
+        <p>Cuando usas funciones de IA (resumir, generar quiz, explicar concepto), el contenido de tu nota se envía a <strong>Groq API</strong> para su procesamiento. Este envío es temporal y no implica almacenamiento permanente por parte de Groq. Consulta la <a href="https://groq.com/privacy-policy/" target="_blank" class="text-indigo-600 hover:underline">política de privacidad de Groq</a> para más detalles.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">3. Finalidad del Tratamiento</h2>
+        <p>Usamos tus datos exclusivamente para:</p>
+        <ul class="list-disc list-inside mt-3 space-y-2 text-slate-600">
+          <li>Autenticar tu identidad y mantener tu sesión activa</li>
+          <li>Almacenar y sincronizar tus apuntes entre dispositivos</li>
+          <li>Procesar tu contenido con IA cuando lo solicites explícitamente</li>
+          <li>Enviarte notificaciones de repaso que tú mismo programas</li>
+          <li>Guardar tus preferencias de configuración</li>
+        </ul>
+        <p class="mt-3 font-medium text-slate-800">No usamos tus datos para publicidad, perfilamiento ni los vendemos a terceros bajo ninguna circunstancia.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">4. Terceros que Procesan tus Datos</h2>
+        <div class="space-y-4 mt-3">
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl">🔥</span>
+              <span class="font-bold text-slate-800">Google Firebase</span>
+            </div>
+            <p class="text-sm text-slate-600">Almacena tus notas y gestiona la autenticación. Cumple con GDPR y estándares internacionales de seguridad.</p>
+            <a href="https://firebase.google.com/support/privacy" target="_blank" class="text-xs text-indigo-600 hover:underline mt-1 inline-block">Ver política de Firebase →</a>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-4">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl">🤖</span>
+              <span class="font-bold text-slate-800">Groq API</span>
+            </div>
+            <p class="text-sm text-slate-600">Procesa el contenido de tus notas para generar resúmenes, quizzes y explicaciones. Solo recibe datos cuando tú activas una función de IA.</p>
+            <a href="https://groq.com/privacy-policy/" target="_blank" class="text-xs text-indigo-600 hover:underline mt-1 inline-block">Ver política de Groq →</a>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">5. Tus Derechos (ARCO)</h2>
+        <p>Conforme a la LFPDPPP, tienes derecho a:</p>
+        <div class="grid grid-cols-2 gap-3 mt-4">
+          <div class="bg-indigo-50 rounded-xl p-4">
+            <div class="font-bold text-indigo-800 mb-1">Acceso</div>
+            <p class="text-sm text-indigo-700">Conocer qué datos tenemos sobre ti</p>
+          </div>
+          <div class="bg-purple-50 rounded-xl p-4">
+            <div class="font-bold text-purple-800 mb-1">Rectificación</div>
+            <p class="text-sm text-purple-700">Corregir datos inexactos o incompletos</p>
+          </div>
+          <div class="bg-rose-50 rounded-xl p-4">
+            <div class="font-bold text-rose-800 mb-1">Cancelación</div>
+            <p class="text-sm text-rose-700">Eliminar tus datos de nuestros sistemas</p>
+          </div>
+          <div class="bg-amber-50 rounded-xl p-4">
+            <div class="font-bold text-amber-800 mb-1">Oposición</div>
+            <p class="text-sm text-amber-700">Oponerte al tratamiento de tus datos</p>
+          </div>
+        </div>
+        <p class="mt-4 text-sm text-slate-600">Puedes ejercer el derecho de Cancelación directamente desde <strong>Ajustes → Eliminar cuenta y datos</strong> en la aplicación, lo que eliminará permanentemente toda tu información.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">6. Seguridad</h2>
+        <p>Implementamos las siguientes medidas de seguridad:</p>
+        <ul class="list-disc list-inside mt-3 space-y-2 text-slate-600">
+          <li>Autenticación mediante OAuth 2.0 de Google</li>
+          <li>Comunicaciones cifradas con HTTPS/TLS</li>
+          <li>Reglas de seguridad en Firestore que impiden el acceso entre usuarios</li>
+          <li>Las API keys nunca se exponen en el código del cliente de forma directa</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">7. Menores de Edad</h2>
+        <p>EstudioGenius está diseñado para estudiantes. Los usuarios menores de 13 años requieren autorización de un padre o tutor para usar la aplicación. No recopilamos intencionalmente datos de menores de 13 años sin consentimiento parental.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">8. Retención de Datos</h2>
+        <p>Conservamos tus datos mientras tu cuenta esté activa. Al eliminar tu cuenta, todos tus datos son borrados permanentemente de nuestros servidores en un plazo máximo de 30 días.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">9. Cambios a esta Política</h2>
+        <p>Podemos actualizar esta política ocasionalmente. Te notificaremos dentro de la aplicación ante cambios significativos. La fecha de "última actualización" al inicio del documento siempre reflejará la versión vigente.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-3">10. Contacto</h2>
+        <p>Para ejercer tus derechos ARCO o cualquier consulta sobre privacidad, contáctanos a través de la sección de Ajustes en la aplicación.</p>
+        <p class="mt-2 text-slate-500 text-sm">EstudioGenius · Puebla, México · © 2026</p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="mt-16 border-t border-slate-200 bg-white py-8 px-6 text-center text-sm text-slate-400">
+    <p>© 2026 EstudioGenius. Todos los derechos reservados. Desarrollado por JuanBv · Puebla, México.</p>
+    <div class="flex justify-center gap-6 mt-3">
+      <a href="/terms.html" class="hover:text-indigo-600 transition-colors">Términos y Condiciones</a>
+      <a href="/privacy.html" class="hover:text-indigo-600 transition-colors font-medium text-slate-600">Política de Privacidad</a>
+      <a href="/" class="hover:text-indigo-600 transition-colors">Volver a la App</a>
+    </div>
+  </footer>
+
+</body>
+</html>

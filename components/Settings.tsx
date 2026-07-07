@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Stats } from './Stats';
 import { Trash2, Shield, AlertTriangle, Moon, Sun, Download, Upload, X, LogOut } from 'lucide-react';
 import { Button } from './Button';
 import { Modal } from './Modal';
@@ -58,6 +59,9 @@ export const Settings: React.FC<SettingsProps> = ({ onClearAll, darkMode, onTogg
 
         <div className="flex-1 overflow-y-auto p-5 space-y-6 pb-32">
             
+            {/* Stats */}
+            <Stats notes={notes} />
+
             {/* Appearance */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wide mb-4">Apariencia</h3>
@@ -197,6 +201,10 @@ export const Settings: React.FC<SettingsProps> = ({ onClearAll, darkMode, onTogg
             <p className="text-xs text-slate-400">Hecho con ❤️ para estudiantes</p>
             <p className="text-xs text-slate-400">© 2026 EstudioGenius. Todos los derechos reservados.</p>
             <p className="text-xs text-slate-400">Desarrollado por JuanBv.</p>
+            <div className="flex justify-center gap-4 mt-3">
+              <a href="/terms.html" target="_blank" className="text-xs text-indigo-500 hover:underline">Términos y Condiciones</a>
+              <a href="/privacy.html" target="_blank" className="text-xs text-indigo-500 hover:underline">Política de Privacidad</a>
+            </div>
           </div>
         </div>
       </div>

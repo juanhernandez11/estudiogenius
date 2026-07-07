@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EstudioGenius – Asistente de Estudio con IA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    .gradient-text {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    }
+    .card-hover {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(99,102,241,0.15);
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #f8faff, #f0f4ff);
+      border: 1px solid #e0e7ff;
+    }
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-white text-slate-900 antialiased">
+
+  <!-- NAV -->
+  <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/img/Gemini_Generated_Image_s5ygros5ygros5yg.png" alt="Logo" class="w-9 h-9 rounded-xl object-cover" />
+        <span class="font-bold text-lg text-slate-900">EstudioGenius</span>
+      </div>
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+        <a href="#problema" class="hover:text-indigo-600 transition-colors">Problema</a>
+        <a href="#solucion" class="hover:text-indigo-600 transition-colors">Solución</a>
+        <a href="#funciones" class="hover:text-indigo-600 transition-colors">Funciones</a>
+        <a href="#impacto" class="hover:text-indigo-600 transition-colors">Impacto</a>
+        <a href="#demo" class="bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors">Ver Demo</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero-bg pt-32 pb-24 px-6 text-white text-center relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
+      <div class="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+    </div>
+    <div class="max-w-4xl mx-auto relative z-10">
+      <img src="/img/Gemini_Generated_Image_s5ygros5ygros5yg.png" alt="EstudioGenius" class="w-24 h-24 rounded-3xl mx-auto mb-6 shadow-2xl object-cover border-4 border-white/30" />
+      <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+        Estudia más inteligente,<br/>no más duro
+      </h1>
+      <p class="text-xl md:text-2xl text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed">
+        EstudioGenius es una aplicación web progresiva que usa Inteligencia Artificial para transformar tus apuntes en resúmenes, quizzes y planes de repaso personalizados.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#demo" class="bg-white text-indigo-700 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-indigo-50 transition-colors shadow-xl">
+          🚀 Ver la App
+        </a>
+        <a href="#funciones" class="bg-white/20 backdrop-blur-sm text-white font-bold px-8 py-4 rounded-2xl text-lg hover:bg-white/30 transition-colors border border-white/30">
+          Conocer más
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="py-16 px-6 bg-slate-50">
+    <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="stat-card rounded-2xl p-6 text-center card-hover">
+        <div class="text-4xl font-black text-indigo-600 mb-1">4</div>
+        <div class="text-sm font-semibold text-slate-600">Funciones de IA</div>
+      </div>
+      <div class="stat-card rounded-2xl p-6 text-center card-hover">
+        <div class="text-4xl font-black text-purple-600 mb-1">100%</div>
+        <div class="text-sm font-semibold text-slate-600">Gratuita</div>
+      </div>
+      <div class="stat-card rounded-2xl p-6 text-center card-hover">
+        <div class="text-4xl font-black text-pink-600 mb-1">PWA</div>
+        <div class="text-sm font-semibold text-slate-600">Sin instalación</div>
+      </div>
+      <div class="stat-card rounded-2xl p-6 text-center card-hover">
+        <div class="text-4xl font-black text-emerald-600 mb-1">☁️</div>
+        <div class="text-sm font-semibold text-slate-600">Sincronización en la nube</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEMA -->
+  <section id="problema" class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-indigo-600 font-bold text-sm uppercase tracking-widest">El Problema</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-3 mb-4">¿Por qué los estudiantes no rinden?</h2>
+        <p class="text-slate-500 text-lg max-w-2xl mx-auto">En México, millones de estudiantes enfrentan los mismos obstáculos cada día.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-red-50 border border-red-100 rounded-3xl p-8 card-hover">
+          <div class="text-4xl mb-4">😰</div>
+          <h3 class="text-xl font-bold text-red-900 mb-3">Apuntes desorganizados</h3>
+          <p class="text-red-700 leading-relaxed">Los estudiantes acumulan páginas de notas sin estructura, lo que dificulta el repaso efectivo antes de exámenes.</p>
+        </div>
+        <div class="bg-amber-50 border border-amber-100 rounded-3xl p-8 card-hover">
+          <div class="text-4xl mb-4">⏰</div>
+          <h3 class="text-xl font-bold text-amber-900 mb-3">Olvido acelerado</h3>
+          <p class="text-amber-700 leading-relaxed">Sin un sistema de repaso, el 70% del contenido aprendido se olvida en 24 horas (Curva del Olvido de Ebbinghaus).</p>
+        </div>
+        <div class="bg-blue-50 border border-blue-100 rounded-3xl p-8 card-hover">
+          <div class="text-4xl mb-4">🤯</div>
+          <h3 class="text-xl font-bold text-blue-900 mb-3">Falta de herramientas accesibles</h3>
+          <p class="text-blue-700 leading-relaxed">Las apps de estudio con IA existentes son costosas o están en inglés, dejando fuera a estudiantes de comunidades con menos recursos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUCIÓN -->
+  <section id="solucion" class="py-24 px-6 bg-gradient-to-br from-indigo-50 to-purple-50">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-indigo-600 font-bold text-sm uppercase tracking-widest">La Solución</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-3 mb-4">EstudioGenius lo resuelve todo</h2>
+        <p class="text-slate-500 text-lg max-w-2xl mx-auto">Una sola app que combina organización, IA y ciencia cognitiva para maximizar el aprendizaje.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-6">
+          <div class="flex gap-4 items-start">
+            <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl">🤖</div>
+            <div>
+              <h3 class="font-bold text-lg mb-1">IA que entiende tus apuntes</h3>
+              <p class="text-slate-600">Genera resúmenes inteligentes, quizzes personalizados y explicaciones de conceptos difíciles en segundos.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl">🧠</div>
+            <div>
+              <h3 class="font-bold text-lg mb-1">Repaso espaciado científico</h3>
+              <p class="text-slate-600">Algoritmo basado en la curva del olvido que programa recordatorios en el momento óptimo para memorizar.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="w-12 h-12 bg-pink-100 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl">🎯</div>
+            <div>
+              <h3 class="font-bold text-lg mb-1">Modo Pomodoro integrado</h3>
+              <p class="text-slate-600">Sesiones de estudio cronometradas con descansos programados para mantener la concentración máxima.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl">☁️</div>
+            <div>
+              <h3 class="font-bold text-lg mb-1">Sincronización en la nube</h3>
+              <p class="text-slate-600">Tus notas disponibles en cualquier dispositivo, en cualquier momento, con respaldo automático.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-3xl shadow-2xl p-6 border border-slate-100">
+          <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white mb-4">
+            <div class="text-sm font-semibold opacity-75 mb-1">📚 Biología — Mitocondria</div>
+            <div class="font-bold text-lg mb-3">La célula y sus organelos</div>
+            <div class="text-sm opacity-90 leading-relaxed">La mitocondria es el organelo encargado de producir energía en forma de ATP mediante la respiración celular...</div>
+          </div>
+          <div class="space-y-3">
+            <div class="flex gap-2">
+              <div class="flex-1 bg-indigo-50 rounded-xl p-3 text-center text-sm font-bold text-indigo-700">✨ Resumir</div>
+              <div class="flex-1 bg-emerald-50 rounded-xl p-3 text-center text-sm font-bold text-emerald-700">📝 Quiz</div>
+              <div class="flex-1 bg-amber-50 rounded-xl p-3 text-center text-sm font-bold text-amber-700">💡 Explicar</div>
+              <div class="flex-1 bg-purple-50 rounded-xl p-3 text-center text-sm font-bold text-purple-700">🎯 Enfocar</div>
+            </div>
+            <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+              <div class="text-xs font-bold text-indigo-700 mb-2">🤖 Resumen IA generado:</div>
+              <div class="text-sm text-slate-700 leading-relaxed">• La mitocondria produce ATP mediante respiración celular<br/>• Tiene doble membrana: externa e interna (crestas)<br/>• Contiene su propio ADN mitocondrial</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNCIONES -->
+  <section id="funciones" class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-indigo-600 font-bold text-sm uppercase tracking-widest">Funcionalidades</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-3 mb-4">Todo lo que necesitas para estudiar</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white border border-slate-100 rounded-3xl p-7 shadow-sm card-hover">
+          <div class="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center text-3xl mb-5">✨</div>
+          <h3 class="font-bold text-lg mb-2">Resúmenes con IA</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Convierte apuntes largos en resúmenes concisos con viñetas, perfectos para repasar antes de un examen.</p>
+        </div>
+        <div class="bg-white border border-slate-100 rounded-3xl p-7 shadow-sm card-hover">
+          <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl mb-5">📝</div>
+          <h3 class="font-bold text-lg mb-2">Quizzes automáticos</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Genera preguntas de opción múltiple basadas en tus propias notas para autoevaluarte de forma efectiva.</p>
+        </div>
+        <div class="bg-white border border-slate-100 rounded-3xl p-7 shadow-sm card-hover">
+          <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-3xl mb-5">💡</div>
+          <h3 class="font-bold text-lg mb-2">Explicador de conceptos</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">¿No entiendes un término? La IA lo explica en contexto con tu propio apunte como referencia.</p>
+        </div>
+        <div class="bg-white border border-slate-100 rounded-3xl p-7 shadow-sm card-hover">
+          <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center text-3xl mb-5">🎯</div>
+          <h3 class="font-bold text-lg mb-2">Modo Pomodoro</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Sesiones de 25 minutos con descansos de 5 minutos para mantener la concentración y evitar el agotamiento.</p>
+        </div>
+        <div class="bg-white border border-slate-100 rounded-3xl p-7 shadow-sm card-hover">
+          <div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-3xl mb-5">🔔</div>
+          <h3 class="font-bold text-lg mb-2">Repaso espaciado</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Recordatorios inteligentes basados en la ciencia cognitiva para repasar en el momento exacto antes de olvidar.</p>
+        </div>
+        <div class="bg-white border border-slate-100 rounded-3xl p-7 shadow-sm card-hover">
+          <div class="w-14 h-14 bg-sky-100 rounded-2xl flex items-center justify-center text-3xl mb-5">📱</div>
+          <h3 class="font-bold text-lg mb-2">PWA — Sin instalación</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Funciona en cualquier dispositivo desde el navegador. Sin descargas, sin barreras de acceso.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACTO -->
+  <section id="impacto" class="py-24 px-6 bg-slate-900 text-white">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-indigo-400 font-bold text-sm uppercase tracking-widest">Impacto Social</span>
+        <h2 class="text-4xl md:text-5xl font-black mt-3 mb-4">Democratizando la educación con IA</h2>
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto">EstudioGenius nació en Puebla para estudiantes mexicanos, con el objetivo de reducir la brecha educativa digital.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-slate-800 rounded-3xl p-8 border border-slate-700">
+          <h3 class="font-bold text-xl mb-4 text-indigo-400">🎯 Problema que resuelve</h3>
+          <ul class="space-y-3 text-slate-300">
+            <li class="flex gap-3"><span class="text-emerald-400 font-bold">✓</span> Acceso gratuito a herramientas de IA educativa</li>
+            <li class="flex gap-3"><span class="text-emerald-400 font-bold">✓</span> Interfaz en español para estudiantes mexicanos</li>
+            <li class="flex gap-3"><span class="text-emerald-400 font-bold">✓</span> Funciona en dispositivos de gama baja (solo necesita navegador)</li>
+            <li class="flex gap-3"><span class="text-emerald-400 font-bold">✓</span> Sin suscripciones ni pagos ocultos</li>
+          </ul>
+        </div>
+        <div class="bg-slate-800 rounded-3xl p-8 border border-slate-700">
+          <h3 class="font-bold text-xl mb-4 text-purple-400">🚀 Potencial de escala</h3>
+          <ul class="space-y-3 text-slate-300">
+            <li class="flex gap-3"><span class="text-emerald-400 font-bold">✓</span> Adaptable a cualquier materia o nivel educativo</li>
+            <li class="flex gap-3"><span class="text-emerald-400 font-bold">✓</span> Arquitectura en la nube que soporta miles de usuarios</li>
+            <li class="flex gap-3"><span class="text-emerald-400 font-bold">✓</span> Puede integrarse con plataformas educativas existentes</li>
+            <li class="flex gap-3"><span class="text-emerald-400 font-bold">✓</span> Replicable en otros estados o países hispanohablantes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STACK TECNOLÓGICO -->
+  <section class="py-24 px-6 bg-white">
+    <div class="max-w-5xl mx-auto text-center">
+      <span class="text-indigo-600 font-bold text-sm uppercase tracking-widest">Tecnología</span>
+      <h2 class="text-4xl font-black mt-3 mb-4">Stack tecnológico moderno</h2>
+      <p class="text-slate-500 mb-12 max-w-xl mx-auto">Construido con las mismas tecnologías que usan las empresas líderes del mundo.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 font-bold text-slate-700">⚛️ React 19</div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 font-bold text-slate-700">📘 TypeScript</div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 font-bold text-slate-700">🔥 Firebase</div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 font-bold text-slate-700">🤖 LLaMA 3.1 (Groq)</div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 font-bold text-slate-700">⚡ Vite</div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 font-bold text-slate-700">🎨 Tailwind CSS</div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 font-bold text-slate-700">📱 PWA</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO / CTA -->
+  <section id="demo" class="py-24 px-6 hero-bg text-white text-center">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-4xl md:text-5xl font-black mb-6">¿Listo para estudiar con IA?</h2>
+      <p class="text-xl text-white/85 mb-10">EstudioGenius es gratuito, no requiere instalación y está disponible ahora mismo.</p>
+      <a href="/" class="inline-block bg-white text-indigo-700 font-black px-10 py-5 rounded-2xl text-xl hover:bg-indigo-50 transition-colors shadow-2xl">
+        🚀 Abrir EstudioGenius
+      </a>
+      <p class="mt-6 text-white/60 text-sm">Desarrollado por JuanBv · Puebla, México · 2026</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 py-8 px-6 text-center text-sm">
+    <p>© 2026 EstudioGenius. Todos los derechos reservados. Desarrollado por JuanBv.</p>
+  </footer>
+
+</body>
+</html>
