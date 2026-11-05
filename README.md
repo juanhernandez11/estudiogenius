@@ -1,6 +1,6 @@
 # EstudioGenius 📚
 
-Tu asistente de estudio con IA powered by Gemini.
+Tu asistente de estudio con IA powered by Groq.
 
 ## 🚀 Configuración Inicial
 
@@ -16,21 +16,18 @@ Copia el archivo `.env.example` a `.env.local`:
 cp .env.example .env.local
 ```
 
-Luego edita `.env.local` con tus credenciales:
+Configura `VITE_GROQ_API_KEY` con una API key de Groq y `VITE_GROQ_MODEL` con un modelo disponible en tu cuenta. El valor de ejemplo es `llama-3.3-70b-versatile`; si Groq devuelve `model not found`, revisa los modelos habilitados en tu consola de Groq y actualiza esa variable.
 
-#### Obtener API Key de Gemini:
-1. Ve a [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Crea una nueva API key
-3. Copia y pega en `VITE_GEMINI_API_KEY`
+En Netlify, agrega estas variables en **Site configuration > Environment variables** y vuelve a desplegar después de modificarlas.
 
-#### Obtener credenciales de Firebase:
+### 3. Configurar credenciales de Firebase
+
 1. Ve a [Firebase Console](https://console.firebase.google.com/)
-2. Crea un nuevo proyecto o selecciona uno existente
-3. Ve a Project Settings > General
-4. En "Your apps", crea una Web App
-5. Copia las credenciales y pégalas en `.env.local`
+2. Crea un proyecto o selecciona uno existente
+3. Ve a Project Settings > General > Your apps
+4. Copia las credenciales de la Web App a las variables `VITE_FIREBASE_*` de `.env.local`
 
-### 3. Configurar reglas de seguridad en Firestore
+### 4. Configurar reglas de seguridad en Firestore
 
 En Firebase Console > Firestore Database > Rules:
 
@@ -45,17 +42,17 @@ service cloud.firestore {
 }
 ```
 
-### 4. Ejecutar en desarrollo
+### 5. Ejecutar en desarrollo
 ```bash
 npm run dev
 ```
 
 ## 🔒 Seguridad
 
-- ⚠️ **NUNCA** subas el archivo `.env.local` a Git
-- ⚠️ **NUNCA** compartas tus API keys públicamente
-- ✅ El archivo `.env.local` ya está en `.gitignore`
-- ✅ Usa `.env.example` como referencia para otros desarrolladores
+- ⚠️ No subas `.env.local` ni compartas API keys.
+- ⚠️ Las variables `VITE_*` se incluyen en el JavaScript del navegador; por lo tanto, una clave `VITE_GROQ_API_KEY` puede ser extraída por cualquier visitante. Para producción, usa una función backend/serverless como proxy y guarda la clave como variable privada sin prefijo `VITE_`.
+- ✅ `.env.local` está en `.gitignore`; `.env.example` contiene solo valores de ejemplo.
+- Si una clave Groq real ya se publicó en el cliente, rótala desde Groq Console.
 
 ## 📦 Scripts disponibles
 
@@ -68,7 +65,7 @@ npm run dev
 - React 19 + TypeScript
 - Vite
 - Firebase (Auth + Firestore)
-- Google Gemini AI
+- Groq API
 - Tailwind CSS (via CDN)
 - Lucide React (iconos)
 
