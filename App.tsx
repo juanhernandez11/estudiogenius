@@ -1,30 +1,61 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Note, ViewState, Notification as NotificationType, DEFAULT_SUBJECTS, AppSettings } from './types';
+import { Note, ViewState, Notification as NotificationType, DEFAULT_SUBJECTS, AppSettings, UserFeedback, StudyProgress, StudyResult } from './types';
 import { NoteList } from './components/NoteList';
 import { NoteEditor } from './components/NoteEditor';
 import { NoteDetail } from './components/NoteDetail';
 import { NavBar } from './components/NavBar';
 import { Settings } from './components/Settings';
+import { StudyHub } from './components/StudyHub';
 import { NotificationToast } from './components/Notification';
 import { Login } from './components/Login';
 import { Onboarding } from './components/Onboarding';
 import { v4 as uuidv4 } from 'uuid';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc, getDocs, getDoc, deleteDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 
 const SETTINGS_KEY = 'study_genius_settings';
 const ONBOARDING_KEY = 'study_genius_onboarding_done';
+const DEFAULT_SETTINGS: AppSettings = {
+  darkMode: false,
+  notificationsEnabled: false,
+  studyDuration: 10,
+  studyPriority: 'balanced',
+  studySubjects: [],
+  weeklyStudyGoal: 3,
+};
+
+const getLocalDateKey = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [notesOwnerUid, setNotesOwnerUid] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [view, setView] = useState<ViewState>('LIST');
   const [notes, setNotes] = useState<Note[]>([]);
   const [subjects, setSubjects] = useState<string[]>(DEFAULT_SUBJECTS);
+  const [studyProgress, setStudyProgress] = useState<StudyProgress>({ currentStreak: 0, lastStudyDate: null });
   const [settings, setSettings] = useState<AppSettings>(() => {
-    const saved = localStorage.getItem(SETTINGS_KEY);
-    return saved ? JSON.parse(saved) : { darkMode: false };
+    try {
+      const saved = localStorage.getItem(SETTINGS_KEY);
+      const parsed = saved ? JSON.parse(saved) as Partial<AppSettings> : {};
+      return {
+        ...DEFAULT_SETTINGS,
+        ...parsed,
+        studyDuration: parsed.studyDuration === 5 || parsed.studyDuration === 15 ? parsed.studyDuration : 10,
+        studyPriority: parsed.studyPriority === 'due' || parsed.studyPriority === 'weak' || parsed.studyPriority === 'new' ? parsed.studyPriority : 'balanced',
+        studySubjects: Array.isArray(parsed.studySubjects) ? parsed.studySubjects.filter((subject): subject is string => typeof subject === 'string') : [],
+        weeklyStudyGoal: parsed.weeklyStudyGoal === 5 || parsed.weeklyStudyGoal === 7 ? parsed.weeklyStudyGoal : 3,
+      };
+    } catch {
+      return DEFAULT_SETTINGS;
+    }
   });
   
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
@@ -44,10 +75,44 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setNotesOwnerUid(currentUser?.uid || null);
+      if (currentUser) {
+        try {
+          const cachedNotes = localStorage.getItem(`study_genius_notes_${currentUser.uid}`);
+          const parsedNotes: unknown = cachedNotes ? JSON.parse(cachedNotes) : [];
+          setNotes(Array.isArray(parsedNotes) ? parsedNotes as Note[] : []);
+        } catch (error) {
+          console.error('Error loading local notes cache:', error);
+          setNotes([]);
+        }
+      } else {
+        setNotes([]);
+        setStudyProgress({ currentStreak: 0, lastStudyDate: null });
+      }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const updateConnection = () => setIsOnline(navigator.onLine);
+    window.addEventListener('online', updateConnection);
+    window.addEventListener('offline', updateConnection);
+    return () => {
+      window.removeEventListener('online', updateConnection);
+      window.removeEventListener('offline', updateConnection);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!user || notesOwnerUid !== user.uid) return;
+    try {
+      localStorage.setItem(`study_genius_notes_${user.uid}`, JSON.stringify(notes));
+    } catch (error) {
+      console.error('Error saving local notes cache:', error);
+      showNotification('No se pudieron guardar tus apuntes para consulta sin conexión.', 'error');
+    }
+  }, [notes, notesOwnerUid, showNotification, user]);
 
   // Load notes from Firestore
   useEffect(() => {
@@ -67,8 +132,8 @@ function App() {
 
     const loadSubjects = async () => {
       try {
-        const subjectsDoc = await getDocs(collection(db, 'users', user.uid, 'settings'));
-        const settingsData = subjectsDoc.docs[0]?.data();
+        const subjectsDoc = await getDoc(doc(db, 'users', user.uid, 'settings', 'subjects'));
+        const settingsData = subjectsDoc.data();
         if (settingsData?.subjects) {
           setSubjects(settingsData.subjects);
         }
@@ -76,9 +141,28 @@ function App() {
         console.error('Error loading subjects:', e);
       }
     };
+
+    const loadStudyProgress = async () => {
+      try {
+        const progressDoc = await getDoc(doc(db, 'users', user.uid, 'settings', 'progress'));
+        const progress = progressDoc.data();
+        if (progress && typeof progress.currentStreak === 'number') {
+          setStudyProgress({
+            currentStreak: progress.currentStreak,
+            lastStudyDate: typeof progress.lastStudyDate === 'string' ? progress.lastStudyDate : null,
+            studyDates: Array.isArray(progress.studyDates)
+              ? progress.studyDates.filter((date: unknown): date is string => typeof date === 'string').slice(-365)
+              : typeof progress.lastStudyDate === 'string' ? [progress.lastStudyDate] : [],
+          });
+        }
+      } catch (e) {
+        console.error('Error loading study progress:', e);
+      }
+    };
     
     loadNotes();
     loadSubjects();
+    loadStudyProgress();
   }, [user, showNotification]);
 
   // Save notes to Firestore
@@ -103,11 +187,21 @@ function App() {
     }
   }, [settings]);
 
+  useEffect(() => {
+    if (
+      settings.notificationsEnabled &&
+      (!('Notification' in window) || Notification.permission !== 'granted')
+    ) {
+      setSettings(prev => ({ ...prev, notificationsEnabled: false }));
+    }
+  }, [settings.notificationsEnabled]);
+
   // Check for notes to review
   useEffect(() => {
     const notifiedNotes = new Map<string, number>();
     
     const checkReviews = () => {
+      if (!settings.notificationsEnabled) return;
       const now = Date.now();
       const reminderWindow = 15 * 60 * 1000;
       
@@ -149,7 +243,7 @@ function App() {
       clearTimeout(timer);
       clearInterval(interval);
     };
-  }, [notes, showNotification]);
+  }, [notes, settings.notificationsEnabled, showNotification]);
 
   const handleAddSubject = async (newSubject: string) => {
     if (!subjects.includes(newSubject)) {
@@ -240,23 +334,146 @@ function App() {
     await saveNoteToFirestore(updatedNote);
   };
 
+  const handleStudyActivity = async () => {
+    const today = getLocalDateKey(new Date());
+    if (studyProgress.lastStudyDate === today) return;
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const continuesStreak = studyProgress.lastStudyDate === getLocalDateKey(yesterday);
+    const dayGap = studyProgress.lastStudyDate
+      ? Date.parse(`${today}T12:00:00`) - Date.parse(`${studyProgress.lastStudyDate}T12:00:00`)
+      : Number.POSITIVE_INFINITY;
+    const hasGraceDay = dayGap >= 0 && dayGap <= 2 * 24 * 60 * 60 * 1000;
+    const nextProgress: StudyProgress = {
+      currentStreak: continuesStreak || hasGraceDay ? studyProgress.currentStreak + 1 : 1,
+      lastStudyDate: today,
+      studyDates: [...new Set([...(studyProgress.studyDates || []), today])].slice(-365),
+    };
+    setStudyProgress(nextProgress);
+    if (user) {
+      try {
+        await setDoc(doc(db, 'users', user.uid, 'settings', 'progress'), nextProgress);
+      } catch (error) {
+        console.error('Error saving study progress:', error);
+        showNotification('No se pudo guardar tu racha de estudio.', 'error');
+      }
+    }
+  };
+
+  const handleStudyResults = async (results: StudyResult[]) => {
+    const now = Date.now();
+    const updates = results.flatMap(result => {
+      const note = notes.find(candidate => candidate.id === result.noteId);
+      if (!note) return [];
+      return [{
+        ...note,
+        quizAttempts: (note.quizAttempts || 0) + result.total,
+        quizCorrect: (note.quizCorrect || 0) + result.correct,
+        lastStudiedAt: now,
+        failedQuestions: [
+          ...(note.failedQuestions || []).filter(question => !result.resolvedQuestionIds.includes(question.id)),
+          ...result.failedQuestions.filter(question =>
+            !note.failedQuestions?.some(existing => existing.id === question.id) &&
+            !result.resolvedQuestionIds.includes(question.id)
+          ),
+        ].slice(-50),
+      }];
+    });
+
+    if (updates.length) {
+      setNotes(previous => previous.map(note => updates.find(update => update.id === note.id) || note));
+      await Promise.all(updates.map(saveNoteToFirestore));
+      await handleStudyActivity();
+    }
+  };
+
   const handleToggleDarkMode = () => {
     setSettings(prev => ({ ...prev, darkMode: !prev.darkMode }));
   };
 
-  const requestNotificationPermission = async () => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      await Notification.requestPermission();
+  const handleUpdateStudyPreferences = (preferences: Pick<AppSettings, 'studyDuration' | 'studyPriority' | 'studySubjects' | 'weeklyStudyGoal'>) => {
+    setSettings(previous => ({ ...previous, ...preferences }));
+  };
+
+  const handleReportQuestion = (question: string, sourceTitle: string) => {
+    void handleSubmitFeedback({
+      category: 'problem',
+      rating: 2,
+      message: `Pregunta dudosa del apunte "${sourceTitle}": ${question}`.slice(0, 2000),
+    }).catch(() => undefined);
+  };
+
+  const handleToggleNotifications = async () => {
+    if (settings.notificationsEnabled) {
+      setSettings(prev => ({ ...prev, notificationsEnabled: false }));
+      return;
+    }
+
+    if (!('Notification' in window)) {
+      showNotification('Este navegador no admite notificaciones.', 'error');
+      return;
+    }
+
+    try {
+      const permission = Notification.permission === 'default'
+        ? await Notification.requestPermission()
+        : Notification.permission;
+      if (permission !== 'granted') {
+        showNotification('No se activaron las notificaciones. Revisa los permisos del navegador.', 'info');
+        return;
+      }
+      setSettings(prev => ({ ...prev, notificationsEnabled: true }));
+      showNotification('Notificaciones de repaso activadas.', 'success');
+    } catch {
+      showNotification('No se pudo solicitar permiso para las notificaciones.', 'error');
     }
   };
 
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
+  const handleImportNotes = async (imported: Note[]) => {
+    if (imported.length > 450) {
+      showNotification('Importa un máximo de 450 notas a la vez.', 'error');
+      return;
+    }
 
-  const handleImportNotes = (imported: Note[]) => {
-    setNotes(prev => [...imported, ...prev]);
-    showNotification(`${imported.length} notas importadas`, 'success');
+    const existingIds = new Set(notes.map(note => note.id));
+    const notesToImport = imported.map(note => {
+      const id = note.id && !existingIds.has(note.id) ? note.id : uuidv4();
+      existingIds.add(id);
+      return { ...note, id };
+    });
+
+    if (user && notesToImport.length) {
+      try {
+        const batch = writeBatch(db);
+        notesToImport.forEach(note => {
+          batch.set(doc(db, 'users', user.uid, 'notes', note.id), note);
+        });
+        await batch.commit();
+      } catch (error) {
+        console.error('Error importing notes to Firestore:', error);
+        showNotification('No se pudieron guardar las notas importadas.', 'error');
+        return;
+      }
+    }
+
+    setNotes(prev => [...notesToImport, ...prev]);
+    showNotification(`${notesToImport.length} notas importadas`, 'success');
+  };
+
+  const handleSubmitFeedback = async (feedback: UserFeedback) => {
+    if (!user) throw new Error('Inicia sesión para enviar comentarios.');
+    try {
+      await addDoc(collection(db, 'users', user.uid, 'feedback'), {
+        ...feedback,
+        createdAt: serverTimestamp(),
+      });
+      showNotification('Gracias por compartir tu opinión.', 'success');
+    } catch (error) {
+      console.error('Error saving feedback:', error);
+      showNotification('No se pudo enviar tu opinión. Inténtalo de nuevo.', 'error');
+      throw error;
+    }
   };
 
   const handleDeleteSubject = async (subject: string) => {
@@ -272,6 +489,7 @@ function App() {
     
     const updatedSubjects = subjects.filter(s => s !== subject);
     setSubjects(updatedSubjects);
+    setSettings(previous => ({ ...previous, studySubjects: previous.studySubjects.filter(value => value !== subject) }));
     
     if (user) {
       try {
@@ -301,8 +519,15 @@ function App() {
       const settingsRef = collection(db, 'users', user.uid, 'settings');
       const settingsSnapshot = await getDocs(settingsRef);
       await Promise.all(settingsSnapshot.docs.map(doc => deleteDoc(doc.ref)));
+
+      const feedbackRef = collection(db, 'users', user.uid, 'feedback');
+      const feedbackSnapshot = await getDocs(feedbackRef);
+      await Promise.all(feedbackSnapshot.docs.map(doc => deleteDoc(doc.ref)));
       
       await user.delete();
+      localStorage.removeItem(`study_genius_notes_${user.uid}`);
+      localStorage.removeItem(SETTINGS_KEY);
+      setSettings(DEFAULT_SETTINGS);
       
       setNotes([]);
       setView('LIST');
@@ -322,6 +547,8 @@ function App() {
     switch (view) {
       case 'LIST':
         return <NoteList notes={notes} availableSubjects={subjects} onSelectNote={handleSelectNote} />;
+      case 'STUDY':
+        return <StudyHub notes={notes} streakDays={studyProgress.currentStreak} studyProgress={studyProgress} studyPreferences={settings} profileName={user.displayName || 'Estudiante'} profilePhoto={user.photoURL} onOpenSettings={() => setView('SETTINGS')} onCreateNote={() => setView('CREATE')} onStudyComplete={results => { void handleStudyResults(results); }} onReportQuestion={handleReportQuestion} />;
       case 'CREATE':
         return <NoteEditor availableSubjects={subjects} onAddSubject={handleAddSubject} onSave={handleSaveNote} onCancel={() => setView('LIST')} />;
       case 'EDIT':
@@ -332,10 +559,10 @@ function App() {
       case 'DETAIL':
         const noteDetail = notes.find(n => n.id === selectedNoteId);
         return noteDetail
-            ? <NoteDetail note={noteDetail} onBack={() => setView('LIST')} onEdit={() => setView('EDIT')} onDelete={handleDeleteNote} onUpdateNote={handleUpdateNote} showNotification={showNotification} />
+            ? <NoteDetail note={noteDetail} onBack={() => setView('LIST')} onEdit={() => setView('EDIT')} onDelete={handleDeleteNote} onUpdateNote={handleUpdateNote} showNotification={showNotification} notificationsEnabled={settings.notificationsEnabled} onStudyActivity={() => { void handleStudyActivity(); }} onReportQuestion={handleReportQuestion} />
             : <div className="p-4 text-center">Error: Nota no encontrada</div>;
       case 'SETTINGS':
-        return <Settings onClearAll={handleClearAll} darkMode={settings.darkMode} onToggleDarkMode={handleToggleDarkMode} notes={notes} onImportNotes={handleImportNotes} subjects={subjects} onDeleteSubject={handleDeleteSubject} onLogout={handleLogout} onDeleteAccount={handleDeleteAccount} />;
+        return <Settings onClearAll={handleClearAll} darkMode={settings.darkMode} onToggleDarkMode={handleToggleDarkMode} notificationsEnabled={settings.notificationsEnabled} notificationPermission={'Notification' in window ? Notification.permission : 'unsupported'} onToggleNotifications={handleToggleNotifications} notes={notes} onImportNotes={handleImportNotes} onSubmitFeedback={handleSubmitFeedback} subjects={subjects} onDeleteSubject={handleDeleteSubject} studyPreferences={settings} onUpdateStudyPreferences={handleUpdateStudyPreferences} onLogout={handleLogout} onDeleteAccount={handleDeleteAccount} />;
       default:
         return <NoteList notes={notes} availableSubjects={subjects} onSelectNote={handleSelectNote} />;
     }
@@ -358,18 +585,25 @@ function App() {
   }
 
   return (
-    <div className={`h-screen w-full ${settings.darkMode ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900'} font-sans mx-auto max-w-md shadow-2xl overflow-hidden relative`}>
+    <div className={`h-[100dvh] min-h-[100svh] w-full ${settings.darkMode ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900'} font-sans mx-auto max-w-7xl shadow-2xl overflow-hidden relative`}>
       {notification && (
         <NotificationToast notification={notification} onClose={() => setNotification(null)} />
       )}
+      {!isOnline && (
+        <div role="status" className="absolute left-0 right-0 top-0 z-30 bg-amber-100 px-4 py-2 text-center text-xs font-medium text-amber-900 dark:bg-amber-900 dark:text-amber-100">
+          Sin conexión: puedes consultar los apuntes guardados en este dispositivo; la IA y sincronización requieren internet.
+        </div>
+      )}
       
-      <main className="h-full w-full">
+      <main className="h-full w-full lg:pl-64">
         {renderView()}
       </main>
       
-      {(view === 'LIST' || view === 'CREATE' || view === 'SETTINGS') && (
-        <NavBar currentView={view} onChangeView={setView} />
-      )}
+      <NavBar
+        currentView={view}
+        onChangeView={setView}
+        hideOnMobile={view === 'DETAIL' || view === 'EDIT'}
+      />
     </div>
   );
 }

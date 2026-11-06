@@ -16,9 +16,9 @@ Copia el archivo `.env.example` a `.env.local`:
 cp .env.example .env.local
 ```
 
-Configura `VITE_GROQ_API_KEY` con una API key de Groq y `VITE_GROQ_MODEL` con un modelo disponible en tu cuenta. El valor de ejemplo es `llama-3.3-70b-versatile`; si Groq devuelve `model not found`, revisa los modelos habilitados en tu consola de Groq y actualiza esa variable.
+Configura `GROQ_API_KEY` con una API key de Groq y `GROQ_MODEL` con un modelo habilitado. La clave de Groq no debe llevar el prefijo `VITE_`: se usa únicamente en el servidor. El modelo predeterminado es `openai/gpt-oss-20b`. La función también usa `VITE_FIREBASE_API_KEY` y `VITE_FIREBASE_PROJECT_ID` para validar la sesión, así que no hace falta duplicarlas con otros nombres.
 
-En Netlify, agrega estas variables en **Site configuration > Environment variables** y vuelve a desplegar después de modificarlas.
+En Netlify, agrega `GROQ_API_KEY` y `GROQ_MODEL` en **Site configuration > Environment variables**. Asegúrate de que `GROQ_API_KEY` esté disponible para Functions/Runtime y vuelve a desplegar tras modificar variables.
 
 ### 3. Configurar credenciales de Firebase
 
@@ -47,12 +47,17 @@ service cloud.firestore {
 npm run dev
 ```
 
+Vite emula localmente la función `/api/groq`. Usa `.env.local` para las variables locales; la API key privada nunca se incluye en el JavaScript del navegador.
+
+Los recordatorios del navegador se activan desde Ajustes y se muestran mientras la aplicación está abierta. La aplicación web todavía no envía notificaciones push cuando está cerrada.
+
 ## 🔒 Seguridad
 
 - ⚠️ No subas `.env.local` ni compartas API keys.
-- ⚠️ Las variables `VITE_*` se incluyen en el JavaScript del navegador; por lo tanto, una clave `VITE_GROQ_API_KEY` puede ser extraída por cualquier visitante. Para producción, usa una función backend/serverless como proxy y guarda la clave como variable privada sin prefijo `VITE_`.
+- ✅ Las solicitudes a Groq pasan por una función que valida el token de Firebase; `GROQ_API_KEY` se mantiene en el servidor.
+- ✅ Las opiniones y notas importadas se guardan bajo la cuenta autenticada del usuario en Firestore.
 - ✅ `.env.local` está en `.gitignore`; `.env.example` contiene solo valores de ejemplo.
-- Si una clave Groq real ya se publicó en el cliente, rótala desde Groq Console.
+- Si una clave Groq real estuvo en `VITE_GROQ_API_KEY`, revócala y crea una nueva: cualquier visitante podría extraerla del JavaScript publicado.
 
 ## 📦 Scripts disponibles
 
@@ -74,8 +79,17 @@ npm run dev
 - 📝 Crear y editar notas de estudio
 - 🤖 Generar resúmenes con IA
 - 📊 Crear quizzes automáticos
-- 🔔 Recordatorios de repaso
+- 🧭 Ruta diaria adaptada a repasos pendientes y temas por reforzar
+- 🚦 Nivel de dominio basado en respuestas registradas
+- 📝 Simulacros de examen cronometrados con resultados por tema
+- 💡 Explicaciones con analogías, ejemplos, pasos o preguntas guía
+- 🔔 Recordatorios de repaso activables desde Ajustes
 - 🎯 Modo enfocado con Pomodoro
+- 🔥 Racha flexible de estudio
+- 🧭 Ruta de estudio diaria personalizada con tus apuntes
+- 🚦 Semáforo de dominio por tema y seguimiento de racha flexible
+- 📝 Simulacro de examen cronometrado con análisis de resultados
+- 💡 Explicaciones con analogías, ejemplos, pasos o preguntas guía
 - 🌙 Modo oscuro
 - 💾 Sincronización en la nube
 - 📤 Exportar/Importar notas

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Note, QuizQuestion } from '../types';
+import { ExplanationStyle, FailedStudyQuestion, Note, QuizQuestion } from '../types';
 import { Button } from './Button';
 import { Modal } from './Modal';
 import { FocusMode } from './FocusMode';
 import { ChevronLeft, Edit2, Trash2, BrainCircuit, Sparkles, BookOpenCheck, HelpCircle, Trophy, RotateCcw, Search, Lightbulb, Calendar, Share2, Download, Focus } from 'lucide-react';
-import { summarizeNote, generateQuiz, explainConcept } from '../services/geminiService';
+import { summarizeNote, generateQuiz, explainConcept } from '../services/groqService';
+import { getMastery, getMasteryLabel } from '../utils/study';
+import { v4 as uuidv4 } from 'uuid';
 
 interface NoteDetailProps {
   note: Note;
@@ -13,9 +15,12 @@ interface NoteDetailProps {
   onDelete: () => void;
   onUpdateNote: (updatedNote: Note) => void;
   showNotification: (msg: string, type: 'success' | 'error' | 'info') => void;
+  notificationsEnabled: boolean;
+  onStudyActivity: () => void;
+  onReportQuestion: (question: string, sourceTitle: string) => void;
 }
 
-export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, onDelete, onUpdateNote, showNotification }) => {
+export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, onDelete, onUpdateNote, showNotification, notificationsEnabled, onStudyActivity, onReportQuestion }) => {
   // AI States
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
@@ -28,10 +33,13 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
   const [quizScore, setQuizScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
+  const [quizFailedQuestions, setQuizFailedQuestions] = useState<FailedStudyQuestion[]>([]);
 
   // Explanation Feature States
   const [showExplainModal, setShowExplainModal] = useState(false);
   const [conceptToExplain, setConceptToExplain] = useState('');
+  const [explanationStyle, setExplanationStyle] = useState<ExplanationStyle>('simple');
   const [explanationResult, setExplanationResult] = useState<string | null>(null);
 
   // Delete Confirmation State
@@ -86,7 +94,7 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
       setIsExplaining(true);
       setExplanationResult(null);
       try {
-          const result = await explainConcept(conceptToExplain, note.content);
+          const result = await explainConcept(conceptToExplain, note.content, explanationStyle);
           setExplanationResult(result);
       } catch (e) {
           showNotification("Error al explicar el concepto.", "error");
@@ -100,6 +108,8 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
       setQuizScore(0);
       setSelectedAnswer(null);
       setShowExplanation(false);
+      setQuizAnswers({});
+      setQuizFailedQuestions([]);
       setQuizFinished(false);
   }
 
@@ -107,8 +117,12 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
       if (selectedAnswer !== null) return;
       setSelectedAnswer(index);
       setShowExplanation(true);
-      if (note.quiz && index === note.quiz[currentQuizQuestion].correctAnswerIndex) {
+      const question = note.quiz?.[currentQuizQuestion];
+      setQuizAnswers(previous => ({ ...previous, [currentQuizQuestion]: index }));
+      if (question && index === question.correctAnswerIndex) {
           setQuizScore(p => p + 1);
+      } else if (question) {
+          setQuizFailedQuestions(previous => [...previous, { ...question, id: uuidv4() }]);
       }
   };
 
@@ -124,11 +138,24 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
           const intervals = [1, 3, 7, 14, 30]; // days
           const count = (note.reviewCount || 0) + 1;
           const nextDays = intervals[Math.min(count, intervals.length - 1)];
+          const now = Date.now();
           onUpdateNote({ 
             ...note, 
             reviewCount: count,
-            nextReview: Date.now() + nextDays * 24 * 60 * 60 * 1000 
+            nextReview: now + nextDays * 24 * 60 * 60 * 1000,
+            quizAttempts: (note.quizAttempts || 0) + note.quiz.length,
+            quizCorrect: (note.quizCorrect || 0) + quizScore,
+            lastStudiedAt: now,
+            failedQuestions: [
+              ...(note.failedQuestions || []).filter(question =>
+                !note.quiz?.some((quizQuestion, index) =>
+                  quizAnswers[index] === quizQuestion.correctAnswerIndex && quizQuestion.question === question.question
+                )
+              ),
+              ...quizFailedQuestions,
+            ].slice(-50),
           });
+          onStudyActivity();
       }
   };
 
@@ -231,6 +258,7 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
              </div>
              <div className="p-6 flex-1 overflow-y-auto pb-24">
                  <div className="bg-white p-6 rounded-2xl shadow-sm mb-6 border border-slate-100">
+                     <p className="mb-2 text-xs font-medium text-slate-500">Pregunta basada en tu apunte: {note.title}</p>
                      <h3 className="text-lg font-bold text-slate-800 mb-6 leading-snug">{q.question}</h3>
                      <div className="space-y-3">
                          {q.options.map((option, idx) => (
@@ -274,6 +302,9 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
                          <p className="text-sm leading-relaxed opacity-90">{q.explanation}</p>
                      </div>
                  )}
+                 <button type="button" onClick={() => onReportQuestion(q.question, note.title)} className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-rose-600">
+                     <HelpCircle className="h-4 w-4" />Reportar pregunta dudosa
+                 </button>
              </div>
              <div className="p-4 bg-white border-t border-slate-200 pb-safe">
                  <Button className="w-full shadow-lg shadow-indigo-200" onClick={nextQuestion} disabled={selectedAnswer === null}>
@@ -305,7 +336,7 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
             </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-6">
+        <div className="flex-1 overflow-y-auto px-5 py-6 lg:mx-auto lg:w-full lg:max-w-4xl lg:px-8 lg:py-8">
             <div className="mb-6">
             <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wide bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 uppercase mb-3">
                 {note.subject}
@@ -315,6 +346,11 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
             </h1>
             <div className="text-xs text-slate-400 dark:text-slate-500">
                 Editado el {new Date(note.lastModified).toLocaleDateString('es-ES')} a las {new Date(note.lastModified).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}
+            </div>
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                <span className={`h-2 w-2 rounded-full ${getMastery(note) === null ? 'bg-slate-400' : getMastery(note)! < 60 ? 'bg-rose-500' : getMastery(note)! < 85 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                {getMasteryLabel(getMastery(note))}
+                {getMastery(note) !== null && ` · ${getMastery(note)}%`}
             </div>
             {note.nextReview && (
               <button
@@ -440,8 +476,26 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
         >
             <div className="space-y-4">
                 <p className="text-sm text-slate-500 dark:text-slate-400">Escribe un término o frase de tu apunte que no entiendas, y la IA te lo explicará en contexto.</p>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    ¿Qué tipo de explicación te ayuda?
+                    <select
+                        id="explanation-style"
+                        name="explanationStyle"
+                        value={explanationStyle}
+                        onChange={event => setExplanationStyle(event.target.value as ExplanationStyle)}
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+                    >
+                        <option value="simple">En palabras sencillas</option>
+                        <option value="analogy">Con una analogía cotidiana</option>
+                        <option value="example">Con un ejemplo resuelto</option>
+                        <option value="steps">Paso a paso</option>
+                        <option value="socratic">Con preguntas y pistas</option>
+                    </select>
+                </label>
                 <div className="relative">
                     <input 
+                        id="concept-to-explain"
+                        name="conceptToExplain"
                         type="text" 
                         value={conceptToExplain}
                         onChange={(e) => setConceptToExplain(e.target.value)}
@@ -500,6 +554,7 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
             <FocusMode 
                 note={note} 
                 onClose={() => setShowFocusMode(false)} 
+                notificationsEnabled={notificationsEnabled}
             />
         )}
 
@@ -531,6 +586,8 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({ note, onBack, onEdit, on
                     </button>
                     {reviewDays === 0 && (
                         <input
+                            id="review-time"
+                            name="reviewTime"
                             type="time"
                             value={customTime}
                             onChange={(e) => setCustomTime(e.target.value)}

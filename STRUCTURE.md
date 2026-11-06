@@ -14,13 +14,18 @@ estudiogenius/
 │   ├── NoteEditor.tsx  # Editor de notas
 │   ├── NoteList.tsx    # Lista de notas
 │   ├── Notification.tsx # Sistema de notificaciones
+│   ├── StudyHub.tsx    # Ruta diaria, dominio y modo examen
 │   └── Settings.tsx    # Configuración
 │
 ├── services/           # Servicios externos
-│   └── geminiService.ts # Integración con Gemini AI
+│   └── groqService.ts  # Integración con Groq
 │
-├── img/                # Imágenes
+├── netlify/functions/  # Funciones backend de Netlify
+│   └── groq.mjs        # Proxy privado con autenticación Firebase
+├── public/img/         # Imágenes
 │   └── Gemini_Generated_Image_s5ygros5ygros5yg.png
+├── utils/
+│   └── study.ts        # Cálculo de dominio por apunte
 │
 ├── App.tsx             # Componente principal
 ├── firebase.ts         # Configuración Firebase
@@ -48,13 +53,17 @@ estudiogenius/
 - Validación de variables de entorno
 - Exporta auth, db, googleProvider
 
-### geminiService.ts
-- Integración con Gemini AI
-- Funciones: summarizeNote, generateQuiz, explainConcept
+### groqService.ts
+- Integración con Groq a través del proxy privado de Netlify
+- Funciones: summarizeNote, generateQuiz, generateStudyQuestions, explainConcept
+
+### StudyHub.tsx
+- Ruta diaria priorizada por repasos pendientes y temas por reforzar
+- Simulacro cronometrado, resultados por tema y seguimiento del dominio
 
 ### types.ts
 - Interfaces TypeScript
-- Note, ViewState, Notification, AppSettings
+- Note, ViewState, Notification, AppSettings, StudyProgress
 
 ## 🔒 Archivos Sensibles (NO subir a Git)
 
@@ -83,7 +92,8 @@ npm run preview      # Preview build
 ## 🔐 Variables de Entorno Requeridas
 
 ```
-VITE_GEMINI_API_KEY=
+GROQ_API_KEY=
+GROQ_MODEL=openai/gpt-oss-20b
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
@@ -98,11 +108,12 @@ VITE_FIREBASE_APP_ID=
 2. App.tsx carga notas desde Firestore
 3. Usuario crea/edita notas (NoteEditor.tsx)
 4. Notas se guardan en Firestore automáticamente
-5. Usuario puede generar resúmenes/quizzes con Gemini AI
-6. Notificaciones de repaso programadas
+5. Usuario puede generar contenido de estudio con Groq mediante Netlify Function
+6. La ruta diaria y los simulacros registran resultados por apunte
+7. El usuario activa los recordatorios desde Ajustes
 
 ## 🎨 Estilos
 
 - Tailwind CSS via CDN (index.html)
 - Modo oscuro con clase 'dark'
-- Diseño mobile-first (max-w-md)
+- Diseño adaptable: navegación inferior en móvil y lateral en escritorio

@@ -5,9 +5,10 @@ import { X, Play, Pause, RotateCcw, Coffee } from 'lucide-react';
 interface FocusModeProps {
   note: { title: string; content: string; summary?: string };
   onClose: () => void;
+  notificationsEnabled: boolean;
 }
 
-export const FocusMode: React.FC<FocusModeProps> = ({ note, onClose }) => {
+export const FocusMode: React.FC<FocusModeProps> = ({ note, onClose, notificationsEnabled }) => {
   const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
@@ -20,7 +21,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ note, onClose }) => {
       }, 1000);
     } else if (timeLeft === 0) {
       setIsRunning(false);
-      if ('Notification' in window && Notification.permission === 'granted') {
+      if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
         new Notification('EstudioGenius', {
           body: isBreak ? '¡Descanso terminado! Vuelve a estudiar' : '¡Tiempo de descanso!',
           icon: '/img/Gemini_Generated_Image_s5ygros5ygros5yg.png'
@@ -28,7 +29,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ note, onClose }) => {
       }
     }
     return () => clearInterval(interval);
-  }, [isRunning, timeLeft, isBreak]);
+  }, [isRunning, timeLeft, isBreak, notificationsEnabled]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

@@ -83,7 +83,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ noteToEdit, availableSub
         </div>
 
         {/* Form Container */}
-        <div className="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto pb-safe">
+        <div className="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto pb-safe lg:mx-auto lg:w-full lg:max-w-5xl lg:p-8">
             <div className="flex-shrink-0">
             <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                 Asignatura
@@ -114,6 +114,8 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ noteToEdit, availableSub
 
             <div className="flex-shrink-0">
             <input
+                id="note-title"
+                name="noteTitle"
                 type="text"
                 placeholder="Título del apunte..."
                 value={title}
@@ -157,6 +159,8 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ noteToEdit, availableSub
             <div className="flex-1 flex flex-col min-h-[50vh]">
             <textarea
                 ref={textareaRef}
+                id="note-content"
+                name="noteContent"
                 placeholder="Escribe tus notas aquí...\n\nUsa los botones de formato:\n**negrita** *cursiva* \`código\`"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -177,6 +181,8 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ noteToEdit, availableSub
             <div className="space-y-4">
                 <p className="text-sm text-slate-500 dark:text-slate-400">Agrega una nueva materia a tu lista.</p>
                 <input 
+                    id="new-subject"
+                    name="newSubject"
                     type="text"
                     autoFocus
                     placeholder="Nombre de la materia (ej. Anatomía)"
